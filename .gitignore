@@ -1,0 +1,13 @@
+# Uploaded content (local test data / user data) — never committed.
+/storage/models/*
+/storage/thumbnails/*
+!/storage/models/.gitkeep
+!/storage/thumbnails/.gitkeep
+
+# Local scratch/test artifacts
+*.stl
+!db/*.sql
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
