@@ -8,6 +8,9 @@
 *.stl
 !db/*.sql
 
+# Real per-environment DB credentials (written by public/install.php).
+/src/config.local.php
+
 # OS/editor noise
 .DS_Store
 Thumbs.db

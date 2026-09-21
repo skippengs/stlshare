@@ -1,0 +1,17 @@
+<?php
+// Copy this file to config.local.php (same directory) and fill in real
+// values, OR just run public/install.php once and let it write this file
+// for you. config.local.php is gitignored — never commit real credentials.
+//
+// Only keys you actually need to override belong here; anything omitted
+// falls back to the default in config.php.
+
+return [
+    'db' => [
+        'host' => '127.0.0.1',
+        'port' => 3306,
+        'name' => 'stlsharer',
+        'user' => 'db_user',
+        'pass' => 'db_password',
+    ],
+];

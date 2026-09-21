@@ -149,6 +149,63 @@ ourselves:
   Mijndomein mailbox for registration/approval notification emails.
 - **Cron:** Plesk's cron UI still works the same for any scheduled cleanup
   script we might add later (e.g. deleting orphaned files).
+- **Schema setup/changes without SSH:** built as two small web-reachable
+  scripts rather than left as a someday-idea — see "install.php / upgrade.php"
+  below.
+
+## install.php / upgrade.php (built 2026-09-21)
+
+Since there's no SSH/`artisan migrate` on Mijndomein shared hosting, schema
+setup and later schema changes both happen through plain PHP scripts you hit
+with a browser after uploading code via FTP/Plesk file manager.
+
+- **`public/install.php`** — one-time setup. Checks PHP version/extensions
+  and that `storage/`/`src/` are writable, then takes DB host/port/name/
+  user/password in a form, tests the connection, runs `db/schema.sql`
+  against it, marks any pre-existing `db/migrations/*.sql` files as already
+  applied (see below), and writes `src/config.local.php` with the submitted
+  credentials (via `var_export`, not string interpolation — safe against a
+  malicious DB name/user containing PHP syntax).
+  - **Refuses to run at all if the configured database already has a `users`
+    row** — checked *before* it will even show the form, using whatever
+    `config('db')` currently resolves to, not whatever gets typed into the
+    form. This means it can't be pointed at a different, not-yet-installed
+    database on a site that's already live; it's a "did this exact site get
+    installed" guard, not a general "is some DB installed" guard.
+  - The success/already-installed screens both say to **delete
+    `public/install.php` from the server** — it's not worth leaving a setup
+    script reachable, even a self-defusing one, on a live site.
+- **`public/upgrade.php`** — migration runner, gated behind
+  `require_admin()` (unlike install.php, which by definition runs before any
+  admin account exists). Compares `db/migrations/*.sql` against the
+  `schema_migrations` table, shows what's pending, and applies it on a
+  confirmed POST. See `db/migrations/README.md` for the authoring convention
+  — short version: `db/schema.sql` is always the full current schema (what
+  `install.php` gives a fresh site); files in `db/migrations/` are
+  incremental deltas for a site that's already live and behind, and each one
+  needs the same change folded into `schema.sql` too so a fresh install
+  doesn't need to replay history.
+  - `db/migrations/` is empty right now — nothing has needed a schema change
+    since the initial build. First real use will be whenever phase 3 (or
+    anything else) needs one.
+- **Shared gotcha both scripts hit and had to work around:** naively
+  splitting a `.sql` file into statements on `;` breaks if a `-- comment`
+  contains a semicolon as English punctuation (schema.sql's own default-quota
+  comment did: "...starting default; admin can override..." — split the
+  `INSERT` right in half). Fixed with `split_sql_statements()` in
+  `src/lib/helpers.php`, which strips whole `-- ...` comment lines before
+  splitting. Also: don't wrap `CREATE TABLE`/`ALTER TABLE` execution in an
+  explicit PDO transaction — MySQL implicitly commits DDL regardless, which
+  leaves PDO's transaction bookkeeping out of sync with the server and makes
+  `rollBack()` throw "There is no active transaction" instead of doing
+  anything useful. Both scripts just run statements directly and rely on
+  `CREATE TABLE IF NOT EXISTS`/idempotent migrations to make a failed
+  partial run safe to fix and re-submit.
+- Tested end-to-end locally: ran `install.php` against a throwaway database
+  start to finish (requirements check → form → schema created →
+  `config.local.php` written), confirmed `upgrade.php` correctly 403s a
+  non-admin and reports "no migrations yet" for an admin, then restored the
+  real local `config.local.php`-less (default XAMPP) setup afterward.
 
 ## Open items / assumptions to revisit
 

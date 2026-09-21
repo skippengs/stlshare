@@ -79,6 +79,15 @@ CREATE TABLE IF NOT EXISTS settings (
     setting_value VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Tracks which db/migrations/*.sql files have been applied, via upgrade.php.
+-- A fresh install.php run inserts every migration file that exists at
+-- install time (their changes are already folded into this schema.sql), so
+-- upgrade.php only ever needs to apply migrations added *after* install.
+CREATE TABLE IF NOT EXISTS schema_migrations (
+    migration   VARCHAR(255) PRIMARY KEY,
+    applied_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Default per-user quota: 2 GiB (see CLAUDE.md open item — picked 2GB as the
 -- starting default; admin can override per-user via users.storage_quota_bytes).
 INSERT INTO settings (setting_key, setting_value) VALUES ('default_quota_bytes', '2147483648')

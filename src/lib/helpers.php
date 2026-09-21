@@ -120,6 +120,24 @@ function csrf_verify_header(): void
     }
 }
 
+/**
+ * Split a plain .sql file's contents into individual statements for
+ * PDO::exec(), one at a time (no multi-statement driver support assumed).
+ * Strips full-line `-- ...` comments first — naively splitting on ";"
+ * without doing this breaks if a comment's prose happens to contain a
+ * semicolon (it did, in schema.sql itself).
+ */
+function split_sql_statements(string $sql): array
+{
+    $lines = array_filter(
+        explode("\n", $sql),
+        static fn(string $line): bool => !str_starts_with(ltrim($line), '--')
+    );
+    $cleaned = implode("\n", $lines);
+
+    return array_values(array_filter(array_map('trim', explode(';', $cleaned))));
+}
+
 function human_filesize(int $bytes): string
 {
     $units = ['B', 'KB', 'MB', 'GB', 'TB'];

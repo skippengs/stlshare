@@ -1,9 +1,10 @@
 <?php
-// Local (XAMPP) config. On Mijndomein, replace these with the Plesk-provided
-// DB credentials and adjust the storage paths to a directory outside the
-// public webroot (see CLAUDE.md "File storage").
+// Base config with local (XAMPP) defaults. Environment-specific values (real
+// DB credentials on Mijndomein) live in config.local.php instead of here —
+// that file is gitignored and is written automatically by public/install.php
+// (or copy config.local.php.example and fill it in by hand).
 
-return [
+$defaults = [
     'db' => [
         'host' => '127.0.0.1',
         'port' => 3306,
@@ -24,3 +25,11 @@ return [
         'name' => 'STL Sharer',
     ],
 ];
+
+$localFile = __DIR__ . '/config.local.php';
+if (is_file($localFile)) {
+    $local = require $localFile;
+    return array_replace_recursive($defaults, is_array($local) ? $local : []);
+}
+
+return $defaults;
