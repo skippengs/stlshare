@@ -11,7 +11,7 @@ export function initViewer(container, stlUrl, options = {}) {
   const height = container.clientHeight || 480;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(options.dark ? 0x1c1c22 : 0xf0f0f3);
+  scene.background = new THREE.Color(options.dark ? 0x0f1e15 : 0xeef2e9);
 
   const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000);
 
@@ -39,7 +39,7 @@ export function initViewer(container, stlUrl, options = {}) {
     geometry.computeVertexNormals();
     geometry.center();
 
-    const material = new THREE.MeshStandardMaterial({ color: 0x3a7bd5, metalness: 0.1, roughness: 0.7 });
+    const material = new THREE.MeshStandardMaterial({ color: 0x4ade80, metalness: 0.1, roughness: 0.6 });
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
@@ -88,8 +88,8 @@ export function initViewer(container, stlUrl, options = {}) {
       return wireframe;
     },
     toggleBackground() {
-      const isDark = scene.background.getHex() === 0x1c1c22;
-      scene.background.set(isDark ? 0xf0f0f3 : 0x1c1c22);
+      const isDark = scene.background.getHex() === 0x0f1e15;
+      scene.background.set(isDark ? 0xeef2e9 : 0x0f1e15);
       return !isDark;
     },
   };

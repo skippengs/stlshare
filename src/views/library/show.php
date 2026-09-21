@@ -1,7 +1,7 @@
 <h1><?= e($model['title']) ?></h1>
 <p class="muted">by <?= e($model['owner_name']) ?> · <?= e(human_filesize((int) $model['file_size_bytes'])) ?> · uploaded <?= e($model['created_at']) ?></p>
 
-<div id="viewer-container" style="width:100%;height:480px;border-radius:14px;overflow:hidden;background:#1c1c22;position:relative;">
+<div id="viewer-container" style="width:100%;height:480px;border-radius:6px;overflow:hidden;background:#0f1e15;border:1px solid var(--border);position:relative;">
   <div id="viewer-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.9rem;">Loading model…</div>
 </div>
 
